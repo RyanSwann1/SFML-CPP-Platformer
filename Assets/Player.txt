@@ -1,0 +1,9 @@
+SpriteSheetDetails Assets\PlayerSpriteDetails.txt
+MaxLives 3
+Damage 1
+Speed 10000 0
+JumpVelocity 100
+JumpTime 0.60
+MaxVelocity 100 100
+HurtTime 1.0
+Friction 

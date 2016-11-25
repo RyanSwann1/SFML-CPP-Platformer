@@ -1,0 +1,15 @@
+Texture PlayerSheet
+Size 32
+Scale 1.0 1.0
+SheetSize 448 384
+|Type|AnimationID|StartFrame|EndFrame|Row|FrameTime|Direction|Repeatable
+Animation 0 0 7 0 0.2 1 1
+Animation 0 0 7 1 0.2 0 1
+Animation 1 0 5 2 0.2 1 1
+Animation 1 0 5 3 0.2 0 1
+Animation 2 0 4 6 0.2 1 0
+Animation 2 0 4 7 0.2 0 0
+Animation 3 0 2 8 0.5 1 0
+Animation 3 0 2 9 0.5 0 0
+Animation 4 0 8 10 0.2 1 0
+Animation 4 0 8 11 0.2 0 0

@@ -1,0 +1,7 @@
+SpriteSheetDetails Assets\RatSpriteDetails.txt
+Speed 10000 0
+MaxVelocity 100 100
+MaxLives 1
+Damage 1
+Position 250 420
+HurtTime 1.0
