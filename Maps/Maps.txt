@@ -1,0 +1,2 @@
+Map1 Maps/Map1.txt
+Map2 Maps/Map2.txt

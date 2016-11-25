@@ -1,0 +1,18 @@
+//KeyBinding//EventType//Code
+0 5 0
+1 5 3
+4 5 22
+5 5 18
+6 5 57
+7 5 58
+8 5 15
+9 5 14
+Retry 5 17
+MainMenu 5 12
+Play 5 15
+Quit 5 16
+Easy 5 27
+Hard 5 28
+10 9 0
+
+//Mouse

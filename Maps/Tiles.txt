@@ -1,0 +1,10 @@
+|id|name|
+0 grass
+1 dirt
+2 dark_stone
+3 grey_brick
+4 orange_brick
+5 light_stone
+6 snow_stone
+7 spike
+8 ice
