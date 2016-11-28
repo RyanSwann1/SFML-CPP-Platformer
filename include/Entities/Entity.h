@@ -26,61 +26,44 @@ public:
 	Entity(const Entity&) = delete;
 	Entity& operator=(const Entity&) = delete;
 
-	void setVelocity(const float x, const float y);
-
-	void setAcceleration(const float x, const float y) { m_acceleration = sf::Vector2f(x, y); }
-	//void setPosition(const sf::Vector2f& pos) { m_position = pos; }
-	inline void setID(const int ID)
-	{
-		if (ID >= 0)
-		{
-			m_ID = ID;
-		}
-	}
-	inline void setInitialPosition(const sf::Vector2f& initialPos)
-	{
-		m_position = initialPos;
-		m_startPosition = initialPos;
-	}
-
 	const EntityType getType() const { return m_type; }
 	const sf::Vector2i getPosition() const;
 	const sf::Vector2f& getActualPosition() const { return m_position; }
-
 	const int getID() const { return m_ID; }
 	const sf::FloatRect& getAABB() const { return m_AABB; }
-	const Direction getDirection() const { return m_currentDirection; }
-	const Tile* const getReferenceTile() const { return m_collisionManager.getReferenceTile(); }
 
-	void addVelocity(const float x, const float y);
-	void move(const float x, const float y);
-	void accelerate(const float x, const float y) { m_acceleration += sf::Vector2f(x, y); }
-	void applyFriction(const float deltaTime);
-	void applyGravity();
-	void updateAABB();
-	void stop() { m_velocity.x = 0; }
-
-	virtual void update(const float deltaTime);
+	inline void draw(sf::RenderWindow& window) { m_spriteSheet.draw(window); }
 	virtual void onEntityCollision(Entity& entity) = 0;
-	void draw(sf::RenderWindow& window);
 
 protected:
-	Direction m_currentDirection;
-	EntityType m_type;
-	SpriteSheet m_spriteSheet;
-	SharedContext m_sharedContext;
-	AudioPlayer m_audioPlayer;
-	CollisionManager m_collisionManager;
+	inline void setPosition(const sf::Vector2f& pos) { m_position = pos; }
+	inline void setMaxVelocity(const sf::Vector2f& maxVel) { m_maxVelocity = maxVel; }
+	inline void setSpeed(const sf::Vector2f& speed) { m_speed = speed; }
+	inline void setType(const EntityType type) { m_type = type; }
+	inline void setDirection(const Direction dir) { m_currentDirection = dir; }
 
-	virtual void resolveCollisions() = 0;
+	inline const sf::Vector2f& getSpeed() const { return m_speed; }
+	inline const sf::Vector2f& getVelocity() const { return m_velocity; }
+	inline const std::string& getName() const { return m_name; }
 
-	void setPosition(const sf::Vector2f& pos) { m_position = pos; }
-	void setMaxVelocity(const sf::Vector2f& maxVel) { m_maxVelocity = maxVel; }
-	void setSpeed(const sf::Vector2f& speed) { m_speed = speed; }
+	inline const EntityType getEntityType() const { return m_type; }
+	inline SpriteSheet& getSpriteSheet() { return m_spriteSheet; }
+	inline SharedContext& getSharedContext() { return m_sharedContext; }
+	inline AudioPlayer& getAudioPlayer() { return m_audioPlayer; }
+	inline CollisionManager& getCollisionManager() { return m_collisionManager; }
+	inline void stop() { m_velocity.x = 0; }
+	inline void setAcceleration(const float x, const float y) { m_acceleration = sf::Vector2f(x, y); }
+	inline void accelerate(const float x, const float y) { m_acceleration += sf::Vector2f(x, y); }
+	inline const Direction getDirection() const { return m_currentDirection; }
+	inline const Tile* const getReferenceTile() const { return m_referenceTile; }
+	inline const bool isCollidingOnX() const { return m_collidingOnX; }
+	inline const bool isCollidingOnY() const { return m_collidingOnY; }
+	void addVelocity(const float x, const float y);
+	void move(const float x, const float y);
+	void setVelocity(const float x, const float y);
 
-	const sf::Vector2f& getSpeed() const { return m_speed; }
-	const sf::Vector2f& getVelocity() const { return m_velocity; }
-	const std::string& getName() const { return m_name; }
+	virtual void update(const float deltaTime);
+	virtual void resolveCollisions(std::vector<CollisionElement*>& collisions);
 
 private:
 	int m_ID;
@@ -95,5 +78,42 @@ private:
 	sf::Vector2f m_speed;
 	sf::Vector2f m_velocity;
 	sf::FloatRect m_AABB;
+
+	Direction m_currentDirection;
+	EntityType m_type;
+	SpriteSheet m_spriteSheet;
+	SharedContext m_sharedContext;
+	AudioPlayer m_audioPlayer;
+	CollisionManager m_collisionManager;
+	const Tile* m_referenceTile; //Tile that the entity is currently standing on
+	bool m_collidingOnX;
+	bool m_collidingOnY;
+
+	inline void setInitialPosition(const sf::Vector2f& initialPos)
+	{
+		m_position = initialPos;
+		m_startPosition = initialPos;
+	}
+	void applyFriction(const float deltaTime);
+	void applyGravity();
+	void updateAABB();
+	void remove(); //Remove this entity from the game
+	inline void setID(const int ID)
+	{
+		if (ID >= 0)
+		{
+			m_ID = ID;
+		}
+	}
+	//inline bool isCollidingOnX() { return m_collidingOnX; }
+	//inline bool isCollidingOnY() { return m_collidingOnY; }
+	//inline void setCollidingOnX() { m_collidingOnX = true; }
+	//inline void setCollidingOnY() { m_collidingOnY = true; }
+
+	inline void resetCollisions()
+	{
+		m_collidingOnX = false;
+		m_collidingOnY = false;
+	}
 };
 
