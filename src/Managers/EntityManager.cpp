@@ -1,5 +1,6 @@
 #include "Managers\EntityManager.h"
 #include "Utilities.h"
+#include "Entities\Entity.h"
 #include <math.h>
 #include <fstream>
 #include <sstream>

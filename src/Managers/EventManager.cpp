@@ -2,6 +2,7 @@
 #include "Window.h"
 #include "SharedContext.h"
 #include "Managers\StateManager.h"
+#include "States\StateBase.h"
 #include "States\StateType.h"
 #include <fstream>
 #include <sstream>
@@ -30,7 +31,7 @@ void EventManager::handleEvent(const sf::Event& polledEvent)
 		//Search through all events for this bind
 		for (auto eIter : bIter.m_events)
 		{
-			const EventType currentEvent = static_cast<EventType>(polledEvent.type);
+			const EventType currentEvent(static_cast<EventType>(polledEvent.type));
 			//If Event Type and polled event match
 			if (eIter.second == currentEvent)
 			{

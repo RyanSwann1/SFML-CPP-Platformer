@@ -5,6 +5,7 @@
 #include "States\StateEndGame.h"
 #include "States\StateGameOver.h"
 #include "States\StatePause.h"
+#include "States\StateType.h"
 #include <algorithm>
 
 StateManager::StateManager(SharedContext& sharedContext)

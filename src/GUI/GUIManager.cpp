@@ -1,4 +1,5 @@
 #include "Managers\GUIManager.h"
+#include "GUI\GUIInterface.h"
 #include <iostream>
 
 

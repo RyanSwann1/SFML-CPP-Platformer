@@ -12,7 +12,10 @@ Entity::Entity(const SharedContext& sharedContext, const std::string& name)
 	m_audioPlayer(sharedContext),
 	m_collisionManager(*&sharedContext, *this),
 	m_ID(0),
-	m_name(name)
+	m_name(name),
+	m_collidingOnX(false),
+	m_collidingOnY(false),
+	m_referenceTile(nullptr)
 {
 	m_friction = sf::Vector2f(0.075f, 0);
 	m_gravity = sf::Vector2f(0, 500);
@@ -121,6 +124,11 @@ void Entity::updateAABB()
 	m_AABB.height = Sheet::TILE_SIZE;
 }
 
+void Entity::remove()
+{
+	m_sharedContext.m_entityManager->removeEntity(getID());
+}
+
 void Entity::update(const float deltaTime)
 {
 	applyGravity();
@@ -133,14 +141,67 @@ void Entity::update(const float deltaTime)
 	const sf::Vector2f deltaPos = m_velocity * deltaTime;
 	move(deltaPos.x, deltaPos.y);
 	
-	m_collisionManager.update();
-	resolveCollisions();
-
-	//Called here to allow entity to resolve impact of collisions
-	m_collisionManager.resetCollisionChecks();
+	m_collisionManager.update(this);
 }
 
-void Entity::draw(sf::RenderWindow & window)
+void Entity::resolveCollisions(std::vector<CollisionElement*>& collisions)
 {
-	m_spriteSheet.draw(window);
+	if (collisions.empty()) {
+		return;
+	}
+
+	//Sort so collisions are in greatest area order
+	std::sort(collisions.begin(), collisions.end(), [](CollisionElement* col1, CollisionElement* col2) { return col1->m_area > col2->m_area; });
+
+	for (const auto &i : collisions)
+	{
+		const sf::FloatRect AABB(getAABB());
+		//Make sure that entity is still colliding with the collision box in question
+		if (!AABB.intersects(i->m_collisionBox))
+		{
+			continue;
+		}
+
+		const sf::FloatRect collisionBox(i->m_collisionBox);
+		const float xDifference = (AABB.left + (AABB.width / 2.0f)) - (collisionBox.left + (collisionBox.width / 2.0f));
+		const float yDifference = (AABB.top + (AABB.height / 2.0f)) - (collisionBox.top + (collisionBox.height / 2.0f));
+		float resolve = 0;
+
+		const sf::FloatRect intersection(i->m_intersection);
+		if (std::abs(xDifference) > std::abs(yDifference))
+		{
+			if (xDifference > 0) {
+				resolve = intersection.width;
+			}
+			else {
+				resolve = -intersection.width;
+			}
+			move(resolve, 0);
+			m_velocity.x = 0;
+			m_collidingOnX = true;
+		}
+		else
+		{
+			if (yDifference > 0) {
+				resolve = intersection.height;
+			}
+			else {
+				resolve = -intersection.height;
+			}
+			move(0, resolve);
+			m_velocity.y = 0;
+			m_collidingOnY = true;
+		}
+		//Assign the reference tile for the entity
+		if (m_collidingOnY)
+		{
+			//m_collisionBoxes.push_back(CollisionBox(sf::Vector2f(collisionBox.left, collisionBox.top)));
+			const Map& map = *m_sharedContext.m_map;
+			const Tile* const tile = map.getTile(std::floor(collisionBox.left / Sheet::TILE_SIZE), std::floor(collisionBox.top / Sheet::TILE_SIZE));
+			if (tile)
+			{
+				m_referenceTile = tile;
+			}
+		}
+	}
 }

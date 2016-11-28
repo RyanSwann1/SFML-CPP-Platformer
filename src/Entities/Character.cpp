@@ -12,14 +12,17 @@ Character::Character(const SharedContext& sharedContext, const std::string& name
 	: Entity(sharedContext, name),
 	m_jumpReady(true),
 	m_hurt(false),
-	m_attackManager(this, sharedContext),
+	m_attackManager(sharedContext),
 	m_lives(0),
 	m_damage(0),
 	m_hurtTime(0),
 	m_jumpTime(0),
 	m_jumpVelocity(0),
 	m_maxLives(0)
-{}
+{
+	m_attackAABB.height = Sheet::TILE_SIZE;
+	m_attackAABB.width = Sheet::TILE_SIZE;
+}
 
 Character::~Character()
 {}
@@ -44,10 +47,8 @@ void Character::load(const std::string & fileName)
 		{
 			std::string spriteSheetName;
 			keyStream >> spriteSheetName;
-			m_spriteSheet.loadIn(spriteSheetName);
-
-			const int tileSize = m_spriteSheet.getTileSize();
-
+			getSpriteSheet().loadIn(spriteSheetName);
+			getSpriteSheet().loadIn(spriteSheetName);
 		}
 		else if (type == "MaxLives")
 		{
@@ -101,14 +102,14 @@ void Character::move(const Direction dir)
 		{
 		case (Direction::Left):
 		{
-			setDirection(Direction::Left);
+			Character::setDirection(Direction::Left);
 			setVelocity(-Entity::getSpeed().x, Entity::getVelocity().y);
 			
 			break;
 		}
 		case (Direction::Right):
 		{
-			setDirection(Direction::Right);
+			Character::setDirection(Direction::Right);
 			setVelocity(Entity::getSpeed().x, Entity::getVelocity().y);
 			break;
 		}
@@ -135,7 +136,7 @@ void Character::update(const float deltaTime)
 	}
 
 	handleTimers(deltaTime);
-	m_spriteSheet.update(this, deltaTime);
+	getSpriteSheet().update(*this, deltaTime);
 }
 
 
@@ -156,8 +157,8 @@ void Character::reduceLife(const int damage)
 	}
 	else 
 	{
-		m_spriteSheet.setAnimationType(AnimationName::Hurt, m_currentDirection);
-		m_audioPlayer.play("Hurt", false);
+		getSpriteSheet().setAnimationType(AnimationName::Hurt, getDirection());
+		getAudioPlayer().play("Hurt", false);
 		setState(EntityState::Hurt);
 		m_lives -= damage;
 		m_hurtTimer.activate(); 
@@ -169,7 +170,7 @@ void Character::jump()
 {
 	if (m_jumpReady && m_currentState != EntityState::Dead)
 	{
-		m_audioPlayer.play("Jump", false);
+		getAudioPlayer().play("Jump", false);
 		m_jumpReady = false;
 		m_jumpingTimer.activate();
 	}
@@ -179,9 +180,9 @@ void Character::killCharacter()
 {
 	if (m_currentState != EntityState::Dead)
 	{
-		m_audioPlayer.play("Hurt", false);
+		getAudioPlayer().play("Hurt", false);
 		setState(EntityState::Dead);
-		m_spriteSheet.setAnimationType(AnimationName::Dead, m_currentDirection);
+		getSpriteSheet().setAnimationType(AnimationName::Dead, getDirection());
 		Entity::setVelocity(0, 0);
 	}
 }
@@ -217,14 +218,21 @@ void Character::setState(const EntityState newEntityState)
 	}
 }
 
-void Character::remove()
+void Character::resolveCollisions(std::vector<CollisionElement*>& collisions)
 {
-	m_sharedContext.m_entityManager->removeEntity(Entity::getID());
-}
-
-void Character::resolveCollisions()
-{
-	if (m_collisionManager.collidingOnYAxis()) {
+	Entity::resolveCollisions(collisions);
+	if (isCollidingOnY())
+	{
 		m_jumpReady = true;
 	}
+}
+
+void Character::attack()
+{
+	//07565935578
+	setState(EntityState::Attacking);
+	getSpriteSheet().setAnimationType(AnimationName::Attack, getDirection());
+	getAudioPlayer().play("Attack", false);
+	stop();
+	m_attackManager.startAttack(*this);
 }

@@ -63,7 +63,7 @@ void Map::loadMap(const std::string & mapName)
 				 auto iter = m_tileSet.find(id);
 				 if (iter != m_tileSet.cend())
 				 {
-					 Tile* tile = new Tile;
+					 Tile* const tile = new Tile;
 					 
 					 tile->m_tileInfo = new TileInfo(*iter->second);
 					 tile->m_tileInfo->m_position = sf::Vector2i(x, y);
@@ -140,7 +140,6 @@ void Map::draw(sf::RenderWindow & window)
 	//Draw the tiles that are only within the view of the game states view.
 	const sf::Vector2f viewCenter = m_sharedContext.m_window->getWindow().getView().getCenter();
 	const sf::Vector2f viewSize = m_sharedContext.m_window->getWindow().getView().getSize() + sf::Vector2f(64, 64);
-	//viewSize += sf::Vector2f(64, 64); 
 	const sf::Vector2f viewSpace = viewCenter + (viewSize / 2.0f);
 	for (const auto &i : m_tileMap)
 	{
@@ -182,7 +181,7 @@ void Map::update()
 	updateBackgroundPosition();
 }
 
-const Tile * Map::getTile(const unsigned int x, const unsigned int y) const
+const Tile* Map::getTile(const unsigned int x, const unsigned int y) const
 {
 	for (const auto &i : m_tileMap)
 	{
@@ -192,13 +191,6 @@ const Tile * Map::getTile(const unsigned int x, const unsigned int y) const
 		}
 	}
 	return nullptr;
-
-	//auto iter = m_tileMap.find(convertCoords(x, y));
-	//if (iter != m_tileMap.cend())
-	//{
-	//	return iter->second;
-	//}
-	//return nullptr;
 }
 
 void Map::unloadCurrentMap()
@@ -261,8 +253,8 @@ void Map::loadInMaps(const std::string& fileName)
 
 void Map::updateBackgroundPosition()
 {
-	sf::Vector2f currentPos = m_backgroundImage.getPosition();
-	sf::View view = m_sharedContext.m_window->getWindow().getView();
+	const sf::Vector2f currentPos = m_backgroundImage.getPosition();
+	const sf::View view = m_sharedContext.m_window->getWindow().getView();
 
 	m_backgroundImage.setPosition(view.getCenter().x - (view.getSize().x / 2.0f), currentPos.y);
 }

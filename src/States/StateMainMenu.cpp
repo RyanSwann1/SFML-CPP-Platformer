@@ -5,6 +5,7 @@
 #include "Managers\GUIManager.h"
 #include "Window.h"
 #include "Managers\EventManager.h"
+#include "Managers\FontManager.h"
 
 StateMainMenu::StateMainMenu(StateManager& stateManager, const StateType stateType)
 	: StateBase(stateManager, stateType)

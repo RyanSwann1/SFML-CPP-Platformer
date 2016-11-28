@@ -11,17 +11,18 @@
 Player::Player(SharedContext& sharedContext, const std::string& name)
 	: Character(sharedContext, name)
 {
-	m_type = EntityType::Player;
-	Character::load(m_sharedContext.m_entityManager->getEntityTypeLocation(name));
-	setDirection(Direction::Right);
+	setType(EntityType::Player);
+	Character::load(getSharedContext().m_entityManager->getEntityTypeLocation(name));
+	Character::setDirection(Direction::Right);
 
-	m_audioPlayer.registerAudioClip(name, "Attack");
-	m_audioPlayer.registerAudioClip(name, "Jump");
-	m_audioPlayer.registerAudioClip(name, "Death");
-	m_audioPlayer.registerAudioClip(name, "Hurt");
-	m_audioPlayer.registerOwner(name);
+	AudioPlayer& audioPlayer = getAudioPlayer();
+	audioPlayer.registerAudioClip(name, "Attack");
+	audioPlayer.registerAudioClip(name, "Jump");
+	audioPlayer.registerAudioClip(name, "Death");
+	audioPlayer.registerAudioClip(name, "Hurt");
+	audioPlayer.registerOwner(name);
 
-	EventManager& eventManager = *m_sharedContext.m_eventManager;
+	EventManager& eventManager = *getSharedContext().m_eventManager;
 	eventManager.addCallback<Player>(KeyBinding::Move_Left, StateType::Game, &Player::reactToInput, this);
 	eventManager.addCallback<Player>(KeyBinding::Move_Right, StateType::Game, &Player::reactToInput, this);
 	eventManager.addCallback<Player>(KeyBinding::Jump, StateType::Game, &Player::reactToInput, this);
@@ -31,19 +32,20 @@ Player::Player(SharedContext& sharedContext, const std::string& name)
 
 Player::~Player()
 {
-	EventManager& eventManager = *m_sharedContext.m_eventManager;
+	EventManager& eventManager = *getSharedContext().m_eventManager;
 	eventManager.removeCallback(KeyBinding::Move_Left);
 	eventManager.removeCallback(KeyBinding::Move_Right);
 	eventManager.removeCallback(KeyBinding::Jump);
 	eventManager.removeCallback(KeyBinding::Action_Button);
 	eventManager.removeCallback(KeyBinding::Stop);
 
-	std::string name = Entity::getName();
-	m_audioPlayer.removeAudioClip(name, "Attack");
-	m_audioPlayer.removeAudioClip(name, "Jump");
-	m_audioPlayer.removeAudioClip(name, "Death");
-	m_audioPlayer.removeAudioClip(name, "Hurt");
-	m_audioPlayer.removeOwner(name);
+	std::string name(Entity::getName());
+	AudioPlayer& audioPlayer = getAudioPlayer();
+	audioPlayer.removeAudioClip(name, "Attack");
+	audioPlayer.removeAudioClip(name, "Jump");
+	audioPlayer.removeAudioClip(name, "Death");
+	audioPlayer.removeAudioClip(name, "Hurt");
+	audioPlayer.removeOwner(name);
 }
 
 void Player::onEntityCollision(Entity& entity)
@@ -67,7 +69,7 @@ void Player::reactToInput(const EventDetails& eventDetails)
 	}
 	else if (eventDetails.m_keyBinding == KeyBinding::Action_Button)
 	{
-		m_attackManager.startAttack();
+		Character::attack();
 	}
 	else if (eventDetails.m_keyBinding == KeyBinding::Jump)
 	{
@@ -75,26 +77,25 @@ void Player::reactToInput(const EventDetails& eventDetails)
 	}
 	else if (eventDetails.m_keyBinding == KeyBinding::Stop)
 	{
-		Entity::setVelocity(0, Entity::getVelocity().y);
+		stop();
 	}
 }
 
-void Player::resolveCollisions()
+void Player::resolveCollisions(std::vector<CollisionElement*>& collisions)
 {
-	Character::resolveCollisions();
+	Character::resolveCollisions(collisions);
 
-	const Tile* const referenceTile = m_collisionManager.getReferenceTile();
-	if (referenceTile)
+	if (getReferenceTile())
 	{
 		//Standing on dedadly tile
-		if (referenceTile->m_deadly) 
+		if (getReferenceTile()->m_deadly) 
 		{
 			killCharacter();
 		}
 		//Standing on tile that'll change level
-		else if (referenceTile->m_warp) 
+		else if (getReferenceTile()->m_warp) 
 		{
-			Map& map = *m_sharedContext.m_map;
+			Map& map = *getSharedContext().m_map;
 			map.loadNextLevel();
 		}
 	}

@@ -2,10 +2,13 @@
 #include "SharedContext.h"
 #include "Managers\TextureManager.h"
 #include "Direction.h"
+#include "Animation\Animation.h"
+#include "Animation\AnimationName.h"
 #include <sstream>
 #include <fstream>
 #include <iostream>
 #include "Entities\Character.h"
+#include "Managers\EntityManager.h"
 
 SpriteSheet::SpriteSheet(const SharedContext& sharedContext)
 	: m_sharedContext(sharedContext),
@@ -25,7 +28,7 @@ SpriteSheet::~SpriteSheet()
 
 void SpriteSheet::cropSprite()
 {
-	const sf::Vector2i targetPos = m_currentAnimation->getDrawTargetPos();
+	const sf::Vector2i targetPos(m_currentAnimation->getDrawTargetPos());
 	m_drawTargetPos.left = targetPos.x * m_tileSize;
 	m_drawTargetPos.top = targetPos.y * m_tileSize;
 	m_drawTargetPos.width = m_tileSize;
@@ -46,7 +49,7 @@ void SpriteSheet::setAnimationType(const AnimationName animationName, const Dire
 	}
 	
 	//Assign the new animation
-	auto iter = m_animations.equal_range(animationName);
+	auto iter(m_animations.equal_range(animationName));
 	for (auto i = iter.first; i != iter.second; ++i)
 	{
 		if (i->second.first == dir)
@@ -58,9 +61,9 @@ void SpriteSheet::setAnimationType(const AnimationName animationName, const Dire
 	}
 }
 
-void SpriteSheet::update(Character* const character, const float deltaTime)
+void SpriteSheet::update(Character& character, const float deltaTime)
 {
-	setSpritePosition(character->getActualPosition());
+	setSpritePosition(character.getActualPosition());
 	handleAnimations(character);
 	cropSprite();
 	m_currentAnimation->update(deltaTime);
@@ -119,16 +122,17 @@ void SpriteSheet::loadIn(const std::string& fileName)
 			keyStream >> animationName >> startFrame >> endFrame >> row >> frameTime >> direction >> repeatable;
 
 			Animation* const animation = new Animation(animationName, startFrame, endFrame, row, frameTime, direction, repeatable);
+			//Effective C++ Item 28 - Hide casts in functions
 			m_animations.emplace(std::make_pair(static_cast<AnimationName>(animationName), std::make_pair(static_cast<Direction>(direction), animation)));
 		}
 	}
 	file.close();
 }
 
-void SpriteSheet::handleAnimations(Character * const character)
+void SpriteSheet::handleAnimations(Character& character)
 {
-	const EntityState characterState = character->getState();
-	const Direction characterDir = character->getDirection();
+	const EntityState characterState = character.getState();
+	const Direction characterDir = character.getDirection();
 	switch (characterState)
 	{
 	case (EntityState::Walking):
@@ -146,7 +150,7 @@ void SpriteSheet::handleAnimations(Character * const character)
 		if (m_currentAnimation->isFinished())
 		{
 			m_currentAnimation->stop();
-			character->setState(EntityState::Idle);
+			character.setState(EntityState::Idle);
 		}
 		break;
 	}
@@ -154,7 +158,7 @@ void SpriteSheet::handleAnimations(Character * const character)
 	{
 		if (m_currentAnimation->isFinished())
 		{
-			character->remove();
+			character.getSharedContext().m_entityManager->removeEntity(character.getID());
 		}
 		break;
 	}
@@ -163,7 +167,7 @@ void SpriteSheet::handleAnimations(Character * const character)
 		if (m_currentAnimation->isFinished())
 		{
 			m_currentAnimation->stop();
-			character->setState(EntityState::Idle);
+			character.setState(EntityState::Idle);
 		}
 		break;
 	}

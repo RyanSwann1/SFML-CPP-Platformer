@@ -4,94 +4,99 @@
 #include "SpriteSheet.h"
 #include "Managers\EntityManager.h"
 #include "Game\Map.h"
+#include "Animation\AnimationName.h"
 
-AttackManager::AttackManager(Character* const entity, const SharedContext& sharedContext)
-	: m_character(entity),
-	m_sharedContext(sharedContext)
-{
-	const int tileSize = m_sharedContext.m_map->getTileSize();
-	m_attackAABB.width = tileSize;
-	m_attackAABB.height = tileSize;
-}
+
+AttackManager::AttackManager(const SharedContext& sharedContext)
+	: m_sharedContext(sharedContext)
+{}
 
 AttackManager::~AttackManager()
-{
-}
+{}
 
-void AttackManager::startAttack()
+void AttackManager::startAttack(Character& character)
 {
-	//Do not attack in one of these states
-	const EntityState state = m_character->getState();
-	if (state == EntityState::Dead ||
-		state == EntityState::Attacking ||
-		state == EntityState::Hurt)
+	if (!proceedWithAttack(character)) 
 	{
 		return;
 	}
 
-	attackPreparation();	
+	
+	std::vector<std::pair<sf::Vector2f, Entity*>> entitiesToAttack = attackPreparation(character);
+
+	for (const auto &i : entitiesToAttack)
+	{
+		//Do not allow to attack the same Entity
+		if (i.second->getID() != character.getID())
+		{
+			attack(character, i.first, *i.second);
+		}
+	}
+
+	entitiesToAttack.clear();
 }
 
-void AttackManager::attackPreparation()
+std::vector<std::pair<sf::Vector2f, Entity*>> AttackManager::attackPreparation(Character& character)
 {
 	//Begin attack
-	m_character->setState(EntityState::Attacking);
-	m_character->m_spriteSheet.setAnimationType(AnimationName::Attack, m_character->getDirection());
-	m_character->m_audioPlayer.play("Attack", false);
-	m_character->setVelocity(0, m_character->getVelocity().y);
-	const int tileSize = m_character->m_spriteSheet.getTileSize();
-	m_attackAABB.top = m_character->getAABB().top;
-	const int y = m_attackAABB.top / tileSize;
+	const int tileSize = Sheet::TILE_SIZE;
+	sf::FloatRect attackAABB = character.m_attackAABB;
+	attackAABB.top = character.getAABB().top;
+	const int y = attackAABB.top / tileSize;
 	int fromX = 0;
 	int toX = 0;
 
 	//Get attack information from specific direction
-	switch (m_character->getDirection())
+	switch (character.getDirection())
 	{
 	case (Direction::Right):
 	{
-		m_attackAABB.left = m_character->getAABB().left;
+		attackAABB.left = character.getAABB().left;
 
-		fromX = std::floor((m_attackAABB.left) / tileSize);
-		toX = std::floor((m_attackAABB.left + (m_attackAABB.width * 2.0f)) / tileSize);
+		fromX = std::floor((attackAABB.left) / tileSize);
+		toX = std::floor((attackAABB.left + (attackAABB.width * 2.0f)) / tileSize);
 		break;
 	}
 	case (Direction::Left):
 	{
-		m_attackAABB.left = m_character->getAABB().left;
+		attackAABB.left = character.getAABB().left;
 
-		toX = std::floor(m_attackAABB.left / tileSize);
-		fromX = std::floor((m_attackAABB.left - (m_attackAABB.width * 2.0f)) / tileSize);
+		toX = std::floor(attackAABB.left / tileSize);
+		fromX = std::floor((attackAABB.left - (attackAABB.width * 2.0f)) / tileSize);
 		break;
 	}
 	}
 
+	std::vector<std::pair<sf::Vector2f, Entity*>> entitiesToAttack;
 	for (int x = fromX; x < toX; ++x)
 	{
 		Entity* const entity = m_sharedContext.m_entityManager->getEntityAtPosition(sf::Vector2i(x, y));
 		if (entity)
 		{
-			m_entitiesAtPos.emplace_back(std::make_pair(sf::Vector2i(x, y), entity));
+			entitiesToAttack.emplace_back(std::make_pair(sf::Vector2i(x, y), entity));
 		}
 	}
-
-	for (const auto &i : m_entitiesAtPos)
-	{
-		//Do not allow to attack the same Entity
-		if (i.second->getID() != m_character->getID())
-		{
-			attack(i.first, *i.second);
-		}
-	}
+	return entitiesToAttack;
 }
 
-void AttackManager::attack(const sf::Vector2i & attackPos, Entity & entity)
+void AttackManager::attack(Character& character, const sf::Vector2f & attackPos, Entity & entityToAttack)
 {
-	const int tileSize = m_character->m_spriteSheet.getTileSize();
-	const sf::FloatRect entityAABB = entity.getAABB();
+	const int tileSize = Sheet::TILE_SIZE;
+	const sf::FloatRect entityAABB = entityToAttack.getAABB();
 	const sf::FloatRect attackBounds(attackPos.x * tileSize, attackPos.y * tileSize, tileSize, tileSize);
 	if (attackBounds.intersects(entityAABB))
 	{
-		entity.onEntityCollision(entity);
+		entityToAttack.onEntityCollision(dynamic_cast<Entity&>(character));
 	}
+}
+
+const bool AttackManager::proceedWithAttack(Character & character) const
+{
+	if (character.getState() == EntityState::Dead ||
+		character.getState() == EntityState::Hurt ||
+		character.getState() == EntityState::Attacking)
+	{
+		return false;
+	}
+	return true;
 }

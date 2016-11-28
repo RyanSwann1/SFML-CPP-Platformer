@@ -4,6 +4,7 @@
 #include "SharedContext.h"
 #include "Managers\EventManager.h"
 #include "Window.h"
+#include "GUI\GUIInterface.h"
 
 StateGameOver::StateGameOver(StateManager& stateManager, const StateType stateType)
 	: StateBase(stateManager, stateType)

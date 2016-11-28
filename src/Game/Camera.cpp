@@ -2,6 +2,7 @@
 #include "Managers\StateManager.h"
 #include "Window.h"
 #include "Entities\Entity.h"
+#include "States\StateBase.h"
 #include <SFML\Graphics.hpp>
 #include <iostream>
 

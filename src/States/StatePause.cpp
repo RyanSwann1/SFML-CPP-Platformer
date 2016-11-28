@@ -1,5 +1,6 @@
 #include "States\StatePause.h"
 #include "Managers\GUIManager.h"
+#include "GUI\GUIInterface.h"
 #include "SharedContext.h"
 #include "Managers\StateManager.h"
 #include "Managers\FontManager.h"

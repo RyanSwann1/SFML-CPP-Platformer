@@ -2,15 +2,16 @@
 #include "SharedContext.h"
 #include "Managers\EntityManager.h"
 #include "Utilities.h"
+#include "Game\Map.h"
 
 Rat::Rat(const SharedContext& sharedContext, const std::string& name)
-	: Computer(sharedContext, name),
+	: Character(sharedContext, name),
 	m_attackReady(true)
 {
-	m_type = EntityType::Enemy;
-	m_currentDirection = static_cast<Direction>(Utilities::randomNumberGenerator(0, 1));
-	m_audioPlayer.registerOwner(name);
-	Character::load(m_sharedContext.m_entityManager->getEntityTypeLocation(name));
+	setType(EntityType::Enemy);
+	setDirection(static_cast<Direction>(Utilities::randomNumberGenerator(0, 1)));
+	getAudioPlayer().registerOwner(name);
+	Character::load(getSharedContext().m_entityManager->getEntityTypeLocation(name));
 	m_attackTimer.setExpirationTime(4);
 	m_attackTimer.activate();
 	Entity::setPosition(sf::Vector2f(400, 400));
@@ -21,7 +22,7 @@ Rat::~Rat()
 
 void Rat::update(const float deltaTime)
 {
-	Computer::update(deltaTime);
+	Character::update(deltaTime);
 
 	handleMovement();
 	handleAttack(deltaTime);
@@ -36,7 +37,7 @@ void Rat::update(const float deltaTime)
 
 void Rat::onEntityCollision(Entity& entity)
 {
-	if (m_currentState != EntityState::Dead)
+	if (Character::getState() != EntityState::Dead)
 	{
 		if (entity.getType() == EntityType::Player)
 		{
@@ -49,18 +50,36 @@ void Rat::onEntityCollision(Entity& entity)
 	}
 }
 
+void Rat::resolveCollisions(std::vector<CollisionElement*>& collisions)
+{
+	Character::resolveCollisions(collisions);
+
+	if (isCollidingOnX())
+	{
+		changeDirection();
+	}
+	const Tile* const tile = getReferenceTile();
+	if (tile)
+	{
+		if (tile->m_deadly)
+		{
+			changeDirection();
+		}
+	}
+}
+
 void Rat::handleAttack(const float deltaTime)
 {
 	if (m_attackReady)
 	{
-		m_attackManager.startAttack();
+		attack();
 		m_attackReady = false;
 	}
 }
 
 void Rat::handleMovement()
 {
-	switch (m_currentDirection)
+	switch (getDirection())
 	{
 	case (Direction::Right) :
 	{
