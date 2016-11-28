@@ -1,9 +1,11 @@
 #pragma once
 
-#include "GUI\GUIInterface.h"
-#include "SharedContext.h"
+#include "States\StateType.h"
 #include <unordered_map>
+#include <SFML\Graphics.hpp>
 
+
+class GUIInterface;
 class GUIManager
 {
 public:

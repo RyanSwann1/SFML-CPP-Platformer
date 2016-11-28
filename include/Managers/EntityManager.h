@@ -1,13 +1,15 @@
 #pragma once
 
-#include "Entities\Entity.h"
 #include <functional>
 #include <string>
 #include <unordered_map>
 #include <list>
+#include <SFML\Graphics.hpp>
 
+class Entity;
 class EntityManager
 {
+	friend class Map;
 public:
 	EntityManager();
 	~EntityManager();
@@ -19,7 +21,6 @@ public:
 	void add(Entity& entity, const sf::Vector2f& pos);
 	void removeEntity(const unsigned int id);
 
-	void purgeEntities();
 	Entity* findEntity(const std::string& name) const;
 	Entity* getEntityAtPosition(const sf::Vector2i& pos) const;
 	const std::string getEntityTypeLocation(const std::string& name) const;
@@ -36,5 +37,6 @@ private:
 	void processRemovals();
 	void removeActiveEntity(unsigned int entityID);
 	void loadInEntityTypes(const std::string& fileName);
+	void purgeEntities();
 };
 

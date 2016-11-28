@@ -1,10 +1,8 @@
 #pragma once
 
-#include "Direction.h"
-#include "Entities\EntityType.h"
 #include "SharedContext.h"
-#include <SFML\Graphics.hpp>
 #include <vector>
+#include <SFML\Graphics.hpp>
 
 class Entity;
 struct Tile;
@@ -29,28 +27,16 @@ public:
 	~CollisionManager();
 
 	CollisionManager(const CollisionManager&) = delete;
-	CollisionElement& operator=(const CollisionManager&) = delete;
-
-	const bool collidingOnXAxis() const { return m_collidingOnX; }
-	const bool collidingOnYAxis() const { return m_collidingOnY; }
-	inline void resetCollisionChecks()
-	{
-		m_collidingOnX = false;
-		m_collidingOnY = false;
-	}
+	CollisionManager& operator=(const CollisionManager&) = delete;
 	
-	void update();
-	const Tile* getReferenceTile() const { return m_referenceTile; }
-
+	void update(Entity* const entity);
+	
 private:
 	SharedContext m_sharedContext;
-	const Tile* m_referenceTile; //Tile that entity is currently standing on
-	Entity* const m_entity;
-	std::vector<CollisionElement*> m_collisions;
-	bool m_collidingOnY;
-	bool m_collidingOnX;
 	
-	void checkEntityCollisions();
-	void checkTileCollisions();
-	void resolveCollisions();
+	void checkEntityCollisions(Entity* const entity);
+	void checkTileCollisions(const Entity* const entity, std::vector<CollisionElement*>& collisions);
+	
+	void handleTileCollisions(Entity* const entity);
+	void handleEntityCollisions(Entity* const entity);
 };

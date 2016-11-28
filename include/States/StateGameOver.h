@@ -1,6 +1,7 @@
 #pragma once
 #include "States\StateBase.h"
-#include "EventDetails.h"
+
+struct EventDetails;
 class StateGameOver :
 	public StateBase
 {

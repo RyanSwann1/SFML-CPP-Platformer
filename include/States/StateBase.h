@@ -3,6 +3,7 @@
 #include "States\StateType.h"
 #include <SFML\Graphics.hpp>
 
+
 class StateManager;
 class StateBase
 {

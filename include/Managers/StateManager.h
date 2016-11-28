@@ -1,15 +1,14 @@
 #pragma once
 
-#include "States\StateBase.h"
 #include "States\StateType.h"
-#include "States\StateMainMenu.h"
-#include "SharedContext.h"
 #include <unordered_map>
 #include <vector>
 #include <list>
 #include <functional>
 #include <SFML\Graphics.hpp>
 
+//enum class StateType;
+class StateBase;
 struct SharedContext;
 class StateManager
 {

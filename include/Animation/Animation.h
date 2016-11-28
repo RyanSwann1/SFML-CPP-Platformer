@@ -1,13 +1,13 @@
 #pragma once
 
 #include "Direction.h"
-#include "Entities\EntityState.h"
 #include "AnimationName.h"
 #include <SFML\Graphics.hpp>
 #include <array>
 #include <string>
 #include <unordered_map>
 
+enum class EntityState;
 struct SharedContext;
 class Animation
 {
@@ -37,18 +37,18 @@ public:
 		m_isPlaying = true;
 		m_pausedTime = 0;
 	}
-	const inline bool isFinished() { return m_currentFrame == m_endFrame; }
-	const inline bool repeatable() { return m_repeatable; }
+	const inline bool isFinished() const { return m_currentFrame == m_endFrame; }
+	const inline bool repeatable() const { return m_repeatable; }
 
 private:
 	const AnimationName m_name;
 	const Direction m_direction;
-	float m_timeElasped;
-	float m_pausedTime;
-	float m_frameTime;
 	const int m_startFrame;
 	const int m_endFrame;
 	const int m_row;
+	float m_timeElasped;
+	float m_pausedTime;
+	float m_frameTime;
 	int m_currentFrame;
 	bool m_repeatable;
 	bool m_isPlaying;

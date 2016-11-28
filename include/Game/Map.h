@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Managers\TextureManager.h"
 #include "SharedContext.h"
+#include "Managers\TextureManager.h"
 #include <SFML\Graphics.hpp>
 #include <string>
 #include <functional>
@@ -53,7 +53,7 @@ struct TileInfo
 	sf::Vector2i m_position;
 	const unsigned int m_ID;
 	const std::string m_tileSheetName;
-	TextureManager* m_textureManager;
+	TextureManager* const m_textureManager;
 };
 
 struct Tile

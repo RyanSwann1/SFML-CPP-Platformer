@@ -13,6 +13,6 @@ public:
 private:
 	sf::RectangleShape m_player;
 	void reactToInput(const EventDetails& eventDetails);
-	void resolveCollisions() override;
+	void resolveCollisions(std::vector<CollisionElement*>& collisions) override;
 };
 

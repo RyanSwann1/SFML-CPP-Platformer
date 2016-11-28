@@ -1,7 +1,9 @@
 #pragma once
-#include "States\StateType.h"
-#include "Managers\StateManager.h"
-#include "EventDetails.h"
+#include "States\StateBase.h"
+
+class StateManager;
+struct EventDetails;
+enum class StateType;
 class StateMainMenu :
 	public StateBase
 {

@@ -1,10 +1,9 @@
 #pragma once
 
-#include "Animation\Animation.h"
-#include "Entities\EntityState.h"
+//if any of these header files change
+//Or if any files they depend on change
+//They must be recompiled
 #include "SharedContext.h"
-#include "Direction.h"
-
 #include <string>
 #include <SFML\Graphics.hpp>
 #include <unordered_map>
@@ -14,6 +13,9 @@
 //LOAD IN TILE MAP XML TUTORIAL
 //http://www.dreamincode.net/forums/topic/232396-c-tile-engine-from-scratch-part-4/
 class Character;
+class Animation;
+enum class Direction;
+enum class AnimationName;
 class SpriteSheet
 {
 	friend class Character;
@@ -26,12 +28,11 @@ public:
 
 	const int getTileSize() const { return m_tileSize; }
 	const std::string& getName() const { return m_spriteSheetName; }
-	void cropSprite();
 	void setAnimationType(const AnimationName animationName, const Direction dir);
 	void setSpritePosition(const sf::Vector2f& pos) { m_sprite.setPosition(pos); }
 	Animation* getCurrentAnimation() const { return m_currentAnimation; }
 	
-	void update(Character* const character, const float deltaTime);
+	void update(Character& character, const float deltaTime);
 	void draw(sf::RenderWindow& window);
 
 private:
@@ -46,5 +47,6 @@ private:
 	sf::Vector2u m_size;
 
 	void loadIn(const std::string& fileName);
-	void handleAnimations(Character* const character);
+	void handleAnimations(Character& character);
+	void cropSprite();
 };

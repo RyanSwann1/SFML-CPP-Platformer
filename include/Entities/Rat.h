@@ -1,15 +1,12 @@
 #pragma once
-#include "Entities\Computer.h"
+#include "Entities\Character.h"
 #include "Game\Timer.h"
 class Rat :
-	public Computer
+	public Character
 {
 public:
 	Rat(const SharedContext& sharedContext, const std::string& name = "Rat");
 	~Rat();
-
-	void update(const float deltaTime) override;
-	void onEntityCollision(Entity& entity) override;
 
 private:
 	bool m_attackReady;
@@ -17,5 +14,7 @@ private:
 
 	void handleAttack(const float deltaTime);
 	void handleMovement();
+	void onEntityCollision(Entity& entity) override; //Check to see if this is being properly called
+	void resolveCollisions(std::vector<CollisionElement*>& collisions) override;
+	void update(const float deltaTime) override;
 };
-
