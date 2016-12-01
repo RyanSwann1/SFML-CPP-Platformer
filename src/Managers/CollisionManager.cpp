@@ -6,7 +6,7 @@
 #include <iostream>
 #include <SFML\Graphics.hpp>
 
-CollisionManager::CollisionManager(const SharedContext& sharedContext, Entity& entity)
+CollisionManager::CollisionManager(const SharedContext& sharedContext)
 	: m_sharedContext(sharedContext)
 {}
 

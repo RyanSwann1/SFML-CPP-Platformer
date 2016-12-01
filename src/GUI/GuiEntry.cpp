@@ -39,18 +39,6 @@ GuiEntry::GuiEntry(const GuiEntry & orig)
 //Assign already initialized variables
 GuiEntry & GuiEntry::operator=(const GuiEntry & entry)
 {
-	init(entry);
-	return *this;
-}
-
-void GuiEntry::draw(sf::RenderWindow & window)
-{
-	window.draw(m_shape);
-	window.draw(m_text);
-}
-
-void GuiEntry::init(const GuiEntry& entry)
-{
 	m_shape = entry.m_shape;
 	m_text = entry.m_text;
 	m_text.setFont(*m_fontManager->getResource(entry.m_fontName));
@@ -59,7 +47,13 @@ void GuiEntry::init(const GuiEntry& entry)
 	m_position = entry.m_position;
 	m_fontManager = entry.m_fontManager;
 	m_type = entry.m_type;
+	return *this;
+}
 
+void GuiEntry::draw(sf::RenderWindow & window)
+{
+	window.draw(m_shape);
+	window.draw(m_text);
 }
 
 const sf::FloatRect GuiEntry::getPosition() const

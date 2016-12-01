@@ -64,12 +64,12 @@ void StateMainMenu::onMouseClick()
 	
 	if (guiManager.interactingWithGuiEntry(mousePos, "Play"))
 	{
-		m_stateManager->switchTo(StateType::Game);
 		m_stateManager->removeState(StateType::MainMenu);
+		m_stateManager->switchTo(StateType::Game);
 	}
 	else if (guiManager.interactingWithGuiEntry(mousePos, "Quit"))
 	{
-		m_stateManager->switchTo(StateType::EndGame);
 		m_stateManager->removeState(StateType::MainMenu);
+		m_stateManager->switchTo(StateType::EndGame);
 	}	
 }

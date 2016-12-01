@@ -26,29 +26,34 @@ StateManager::~StateManager()
 
 void StateManager::switchTo(const StateType stateType)
 {
-	//Iterate through existing states to see if state already exists
-	if (!m_states.empty())
-	{
-		for (auto iter = m_states.begin(); iter != m_states.end(); ++iter)
-		{
-			if (stateType == iter->first)
-			{
-				m_currentState->onExit();
-				const StateType tempType = iter->first;
-				StateBase* const tempState = iter->second;
-				m_states.emplace_back(std::make_pair(tempType, tempState));
-				m_currentState = m_states.back().second;
-				m_currentState->onEnter();
-				return;
-			}
-		}
-	}
-
-	//Exit current state
+	//Exit the current state
 	if (m_currentState)
 	{
 		m_currentState->onExit();
 	}
+	//Iterate through existing states to see if state already exists
+	auto iter = std::find_if(m_states.begin(), m_states.end(), [stateType](const std::pair<StateType, StateBase*>& state ) {return state.second->getType() == stateType; });
+	if (iter != m_states.end())
+	{
+		//Change current state and enter new
+		m_currentState = iter->second;
+		m_currentState->onEnter();
+		return;
+	}
+
+	//for (auto iter = m_states.begin(); iter != m_states.end(); ++iter)
+	//{
+	//	if (stateType == iter->first)
+	//	{
+	//		m_currentState->onExit();
+	//		const StateType tempType = iter->first;
+	//		StateBase* const tempState = iter->second;
+	//		m_states.emplace_back(std::make_pair(tempType, tempState));
+	//		m_currentState = m_states.back().second;
+	//		m_currentState->onEnter();
+	//		return;
+	//	}
+	//}
 
 	createState(stateType);
 	m_currentState = m_states.back().second;
@@ -66,17 +71,21 @@ void StateManager::removeState(const StateType stateType)
 
 void StateManager::update(const float deltaTime)
 {
-	m_currentState->update(deltaTime);
-
+	if (m_currentState)
+	{
+		m_currentState->update(deltaTime);
+	}
+	
 	processRemovals();
 }
 
 void StateManager::draw(sf::RenderWindow & window)
 {
-	for (const auto &i : m_states)
+	if (m_currentState)
 	{
-		i.second->draw(window);
+		m_currentState->draw(window);
 	}
+	
 }
 void StateManager::createState(const StateType stateType)
 {
@@ -103,8 +112,6 @@ void StateManager::processRemovals()
 	}
 }
 
-//Unsure of which one to delete properly
-
 void StateManager::purgeStates()
 {
 	for (auto &i : m_states)
@@ -117,19 +124,14 @@ void StateManager::purgeStates()
 
 bool StateManager::removeActiveState(const StateType stateType)
 {
-	for (auto iter = m_states.begin(); iter != m_states.end();)
+	auto iter = std::find_if(m_states.begin(), m_states.end(), [stateType](const std::pair<StateType, StateBase*>& state) {return state.second->getType() == stateType; });
+	if (iter != m_states.end())
 	{
-		if (iter->first == stateType)
-		{
-			delete iter->second;
-			iter->second = nullptr;
-			m_states.erase(iter);
-			return true;
-		}
-		else
-		{
-			++iter;
-		}
+		delete iter->second;
+		iter->second = nullptr;
+		m_states.erase(iter);
+		return true;
 	}
+
 	return false;
 }

@@ -11,3 +11,22 @@ Timer::Timer()
 Timer::~Timer()
 {
 }
+
+void Timer::update(const float deltaTime)
+{
+	if (m_isActive)
+	{
+		m_timeElasped += deltaTime;
+
+		if (isExpired())
+		{
+			deactivate();
+		}
+	}
+}
+
+void Timer::deactivate()
+{
+	m_isActive = false;
+	m_timeElasped = 0;
+}

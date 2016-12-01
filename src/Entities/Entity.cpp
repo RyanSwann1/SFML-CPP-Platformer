@@ -8,9 +8,9 @@
 
 Entity::Entity(const SharedContext& sharedContext, const std::string& name)
 	: m_sharedContext(sharedContext),
-	m_spriteSheet(*&sharedContext),
+	m_spriteSheet(sharedContext),
 	m_audioPlayer(sharedContext),
-	m_collisionManager(*&sharedContext, *this),
+	m_collisionManager(sharedContext),
 	m_ID(0),
 	m_name(name),
 	m_collidingOnX(false),
@@ -87,10 +87,8 @@ void Entity::move(const float x, const float y)
 	{
 		m_position.x = 0;
 	}
+	//After movement, readjust players collision box
 	updateAABB();
-
-	//After movement reset velocity
-	//m_velocity = sf::Vector2f(0, 0);
 }
 
 void Entity::applyFriction(const float deltaTime)
@@ -127,6 +125,29 @@ void Entity::updateAABB()
 void Entity::remove()
 {
 	m_sharedContext.m_entityManager->removeEntity(getID());
+}
+
+void Entity::moveInDirection(const Direction dir)
+{
+	if (m_currentDirection != dir) 
+	{
+		m_currentDirection = dir;
+		stop();
+	}
+
+	switch (dir)
+	{
+	case(Direction::Left):
+	{
+		setVelocity(-m_speed.x, m_velocity.y);
+		break;
+	}
+	case (Direction::Right) :
+	{
+		setVelocity(m_speed.x, m_velocity.y);
+		break;
+	}
+	}
 }
 
 void Entity::update(const float deltaTime)

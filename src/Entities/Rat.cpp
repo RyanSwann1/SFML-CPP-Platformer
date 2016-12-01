@@ -23,14 +23,23 @@ Rat::~Rat()
 void Rat::update(const float deltaTime)
 {
 	Character::update(deltaTime);
+	Character::moveInDirection(Entity::getDirection());
+	
+	if (m_attackReady)
+	{
+		Character::attack();
+		m_attackReady = false;
+	}
 
-	handleMovement();
-	handleAttack(deltaTime);
+	handleAttackTimer(deltaTime);
+}
 
+void Rat::handleAttackTimer(const float deltaTime)
+{
 	m_attackTimer.update(deltaTime);
 	if (m_attackTimer.isExpired())
 	{
-		m_attackTimer.reset();
+		m_attackTimer.resetTime();
 		m_attackReady = true;
 	}
 }
@@ -56,40 +65,18 @@ void Rat::resolveCollisions(std::vector<CollisionElement*>& collisions)
 
 	if (isCollidingOnX())
 	{
-		changeDirection();
-	}
-	const Tile* const tile = getReferenceTile();
-	if (tile)
-	{
-		if (tile->m_deadly)
+		switch (Entity::getDirection())
 		{
-			changeDirection();
+		case (Direction::Left) :
+		{
+			Character::moveInDirection(Direction::Right);
+			break;
 		}
-	}
-}
-
-void Rat::handleAttack(const float deltaTime)
-{
-	if (m_attackReady)
-	{
-		attack();
-		m_attackReady = false;
-	}
-}
-
-void Rat::handleMovement()
-{
-	switch (getDirection())
-	{
-	case (Direction::Right) :
-	{
-		move(Direction::Right);
-		break;
-	}
-	case (Direction::Left) : 
-	{
-		move(Direction::Left);
-		break;
-	}
+		case (Direction::Right) :
+		{
+			Character::moveInDirection(Direction::Left);
+			break;
+		}
+		}
 	}
 }

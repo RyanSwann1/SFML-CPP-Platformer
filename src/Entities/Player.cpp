@@ -13,7 +13,7 @@ Player::Player(SharedContext& sharedContext, const std::string& name)
 {
 	setType(EntityType::Player);
 	Character::load(getSharedContext().m_entityManager->getEntityTypeLocation(name));
-	Character::setDirection(Direction::Right);
+	Entity::setDirection(Direction::Right);
 
 	AudioPlayer& audioPlayer = getAudioPlayer();
 	audioPlayer.registerAudioClip(name, "Attack");
@@ -39,7 +39,7 @@ Player::~Player()
 	eventManager.removeCallback(KeyBinding::Action_Button);
 	eventManager.removeCallback(KeyBinding::Stop);
 
-	std::string name(Entity::getName());
+	const std::string name(Entity::getName());
 	AudioPlayer& audioPlayer = getAudioPlayer();
 	audioPlayer.removeAudioClip(name, "Attack");
 	audioPlayer.removeAudioClip(name, "Jump");
@@ -59,25 +59,33 @@ void Player::onEntityCollision(Entity& entity)
 
 void Player::reactToInput(const EventDetails& eventDetails)
 {
-	if (eventDetails.m_keyBinding == KeyBinding::Move_Left)
+	switch (eventDetails.m_keyBinding)
 	{
-		move(Direction::Left);
-	}
-	else if (eventDetails.m_keyBinding == KeyBinding::Move_Right)
+	case (KeyBinding::Move_Left) :
 	{
-		move(Direction::Right);
+		Character::moveInDirection(Direction::Left);
+		break;
 	}
-	else if (eventDetails.m_keyBinding == KeyBinding::Action_Button)
+	case (KeyBinding::Move_Right) : 
+	{
+		Character::moveInDirection(Direction::Right);
+		break;
+	}
+	case (KeyBinding::Action_Button) :
 	{
 		Character::attack();
+		break;
 	}
-	else if (eventDetails.m_keyBinding == KeyBinding::Jump)
+	case (KeyBinding::Stop) :
 	{
-		jump();
+		Entity::stop();
+		break;
 	}
-	else if (eventDetails.m_keyBinding == KeyBinding::Stop)
+	case (KeyBinding::Jump) :
 	{
-		stop();
+		Character::jump();
+		break;
+	}
 	}
 }
 

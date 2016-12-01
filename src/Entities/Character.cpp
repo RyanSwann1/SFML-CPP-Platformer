@@ -94,29 +94,6 @@ void Character::load(const std::string & fileName)
 	}
 }
 
-void Character::move(const Direction dir)
-{
-	if (m_currentState != EntityState::Dead && m_currentState != EntityState::Attacking && m_currentState != EntityState::Hurt)
-	{
-		switch (dir)
-		{
-		case (Direction::Left):
-		{
-			Character::setDirection(Direction::Left);
-			setVelocity(-Entity::getSpeed().x, Entity::getVelocity().y);
-			
-			break;
-		}
-		case (Direction::Right):
-		{
-			Character::setDirection(Direction::Right);
-			setVelocity(Entity::getSpeed().x, Entity::getVelocity().y);
-			break;
-		}
-		}
-	}
-}
-
 void Character::update(const float deltaTime)
 {
 	Entity::update(deltaTime);
@@ -139,6 +116,16 @@ void Character::update(const float deltaTime)
 	getSpriteSheet().update(*this, deltaTime);
 }
 
+void Character::moveInDirection(const Direction dir)
+{
+	if (m_currentState == EntityState::Hurt ||
+		m_currentState == EntityState::Dead ||
+		m_currentState == EntityState::Attacking)
+	{
+		return;
+	}
+	Entity::moveInDirection(dir);
+}
 
 void Character::reduceLife(const int damage)
 {
@@ -189,25 +176,12 @@ void Character::killCharacter()
 
 void Character::handleTimers(const float deltaTime)
 {
-	if (m_hurtTimer.isActive())
-	{
-		m_hurtTimer.update(deltaTime);
-		if (m_hurtTimer.isExpired())
-		{
-			m_hurtTimer.deactivate();
-		}
-	}
-
+	m_jumpingTimer.update(deltaTime);
 	if (m_jumpingTimer.isActive())
 	{
-		m_jumpingTimer.update(deltaTime);
 		addVelocity(0, -m_jumpVelocity);
-
-		if (m_jumpingTimer.isExpired())
-		{
-			m_jumpingTimer.deactivate();
-		}
 	}
+	m_hurtTimer.update(deltaTime);
 }
 
 void Character::setState(const EntityState newEntityState)
@@ -229,7 +203,14 @@ void Character::resolveCollisions(std::vector<CollisionElement*>& collisions)
 
 void Character::attack()
 {
-	//07565935578
+	//Disallow attacking within these states
+	if (m_currentState == EntityState::Attacking ||
+		m_currentState == EntityState::Dead ||
+		m_currentState == EntityState::Hurt)
+	{
+		return;
+	}
+
 	setState(EntityState::Attacking);
 	getSpriteSheet().setAnimationType(AnimationName::Attack, getDirection());
 	getAudioPlayer().play("Attack", false);

@@ -16,12 +16,6 @@ AttackManager::~AttackManager()
 
 void AttackManager::startAttack(Character& character)
 {
-	if (!proceedWithAttack(character)) 
-	{
-		return;
-	}
-
-	
 	std::vector<std::pair<sf::Vector2f, Entity*>> entitiesToAttack = attackPreparation(character);
 
 	for (const auto &i : entitiesToAttack)
@@ -88,15 +82,4 @@ void AttackManager::attack(Character& character, const sf::Vector2f & attackPos,
 	{
 		entityToAttack.onEntityCollision(dynamic_cast<Entity&>(character));
 	}
-}
-
-const bool AttackManager::proceedWithAttack(Character & character) const
-{
-	if (character.getState() == EntityState::Dead ||
-		character.getState() == EntityState::Hurt ||
-		character.getState() == EntityState::Attacking)
-	{
-		return false;
-	}
-	return true;
 }
