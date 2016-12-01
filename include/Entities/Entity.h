@@ -19,6 +19,7 @@ class Entity
 {
 	friend class EntityManager;
 	friend class CollisionManager;
+	friend class AttackManager;
 public:
 	Entity(const SharedContext& sharedContext, const std::string& name);
 	virtual ~Entity();
@@ -33,8 +34,7 @@ public:
 	const sf::FloatRect& getAABB() const { return m_AABB; }
 
 	inline void draw(sf::RenderWindow& window) { m_spriteSheet.draw(window); }
-	virtual void onEntityCollision(Entity& entity) = 0;
-
+	
 protected:
 	inline void setPosition(const sf::Vector2f& pos) { m_position = pos; }
 	inline void setMaxVelocity(const sf::Vector2f& maxVel) { m_maxVelocity = maxVel; }
@@ -59,11 +59,13 @@ protected:
 	inline const bool isCollidingOnX() const { return m_collidingOnX; }
 	inline const bool isCollidingOnY() const { return m_collidingOnY; }
 	void addVelocity(const float x, const float y);
-	void move(const float x, const float y);
+	
 	void setVelocity(const float x, const float y);
-
+	
+	virtual void moveInDirection(const Direction dir);
 	virtual void update(const float deltaTime);
 	virtual void resolveCollisions(std::vector<CollisionElement*>& collisions);
+
 
 private:
 	int m_ID;
@@ -78,7 +80,8 @@ private:
 	sf::Vector2f m_speed;
 	sf::Vector2f m_velocity;
 	sf::FloatRect m_AABB;
-
+	virtual void onEntityCollision(Entity& entity) = 0;
+	
 	Direction m_currentDirection;
 	EntityType m_type;
 	SpriteSheet m_spriteSheet;
@@ -94,6 +97,7 @@ private:
 		m_position = initialPos;
 		m_startPosition = initialPos;
 	}
+	void move(const float x, const float y);
 	void applyFriction(const float deltaTime);
 	void applyGravity();
 	void updateAABB();

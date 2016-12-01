@@ -23,7 +23,7 @@ struct CollisionElement
 class CollisionManager
 {
 public:
-	CollisionManager(const SharedContext& sharedContext, Entity& entity);
+	CollisionManager(const SharedContext& sharedContext);
 	~CollisionManager();
 
 	CollisionManager(const CollisionManager&) = delete;

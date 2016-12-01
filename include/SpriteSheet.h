@@ -1,5 +1,8 @@
 #pragma once
 
+//if any of these header files change
+//Or if any files they depend on change
+//They must be recompiled
 #include "SharedContext.h"
 #include <string>
 #include <SFML\Graphics.hpp>

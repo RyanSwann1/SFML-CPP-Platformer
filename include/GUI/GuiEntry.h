@@ -31,6 +31,4 @@ private:
 	sf::Text m_text;
 	sf::Vector2f m_position;
 	FontManager* m_fontManager;
-
-	void init(const GuiEntry&);
 };

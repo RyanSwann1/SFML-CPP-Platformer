@@ -11,7 +11,6 @@ public:
 	void onEntityCollision(Entity& entity) override;
 	
 private:
-	sf::RectangleShape m_player;
 	void reactToInput(const EventDetails& eventDetails);
 	void resolveCollisions(std::vector<CollisionElement*>& collisions) override;
 };

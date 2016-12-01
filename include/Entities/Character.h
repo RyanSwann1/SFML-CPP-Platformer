@@ -24,24 +24,12 @@ public:
 
 protected:
 	void jump();
-	void move(const Direction dir);
 	void load(const std::string& fileName);
-	inline void changeDirection()
-	{
-		(Entity::getDirection() == Direction::Left ? Entity::setDirection(Direction::Right) : Entity::setDirection(Direction::Left));
-	}
 	void killCharacter(); //Set to destroy this character
 	void resolveCollisions(std::vector<CollisionElement*>& collisions) override;
 	void attack();
-	inline void setDirection(const Direction newDir)
-	{
-		if (getDirection() != newDir)
-		{
-			Entity::setDirection(newDir);
-			stop();
-		}
-	}
 	void update(const float deltaTime) override;
+	void moveInDirection(const Direction dir) override;
 
 private:
 	Timer m_jumpingTimer;

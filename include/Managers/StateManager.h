@@ -16,43 +16,17 @@ public:
 	explicit StateManager(SharedContext& sharedContext);
 	~StateManager();
 
+	StateManager(const StateManager&) = delete;
+	StateManager& operator=(const StateManager&) = delete;
+
 	SharedContext& getSharedContext() const { return *m_sharedContext; }
 	const StateBase& getCurrentState() const { return *m_currentState; }
+
 	void switchTo(const StateType stateType);
 	void removeState(const StateType stateType);
 	void update(const float deltaTime);
 	void draw(sf::RenderWindow& window);
-	//sf::View& getView() { return m_view; }
 	void createState(const StateType stateType);
-
-	////Without templates
-	//void registerGameState()
-	//{
-	//	m_stateFactory.emplace(std::make_pair(StateType::Game, [this]() -> StateBase*
-	//	{
-	//		return new StateGame(this);
-	//	}));
-	//}
-	//void registerMainMenuState()
-	//{
-	//	m_stateFactory.emplace(std::make_pair(StateType::MainMenu, [this]() -> StateBase*
-	//	{
-	//		return new StateMainMenu(this);
-	//	}));
-	//}
-
-	//With templates
-	template <class T>
-	void registerState(const StateType stateType)
-	{
-		if (m_stateFactory.find(stateType) == m_stateFactory.cend())
-		{
-			m_stateFactory.emplace(std::make_pair(stateType, [this, stateType]() -> StateBase*
-			{
-				return new T(*this, stateType);
-			}));
-		}
-	}
 
 private:
 	std::unordered_map<StateType, std::function<StateBase*()>> m_stateFactory;
@@ -66,4 +40,17 @@ private:
 	void processRemovals();
 	void purgeStates();
 	bool removeActiveState(const StateType stateType);
+
+	//With templates
+	template <class T>
+	void registerState(const StateType stateType)
+	{
+		if (m_stateFactory.find(stateType) == m_stateFactory.cend())
+		{
+			m_stateFactory.emplace(std::make_pair(stateType, [this, stateType]() -> StateBase*
+			{
+				return new T(*this, stateType);
+			}));
+		}
+	}
 };

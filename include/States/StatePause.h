@@ -1,7 +1,7 @@
 #pragma once
 #include "States\StateBase.h"
 
-class EventDetails;
+struct EventDetails;
 class StatePause :
 	public StateBase
 {
